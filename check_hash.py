@@ -41,7 +41,7 @@ def main(hash_target, hash_algo, hash_expected):
   if isinstance(hash, str):
     if hash == hash_expected:
       return "Hash matches."
-    return "Hash does not match."
+    return f"Hash does not match. {hash}"
   
   raise RuntimeError("Hash result was not valid.")
   

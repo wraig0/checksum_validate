@@ -1,4 +1,4 @@
-from main import main, validate_args, get_hash
+from check_hash import main, validate_args, get_hash
 
 # check exit code is 1 when no args is wrong type
 def expect(label, test, expected_result):
@@ -38,19 +38,22 @@ def try_test_main(arg1, arg2, arg3):
     return result
   
 target = "test_bob.txt"
-alg = "sha512"
-target_hash =  "b366c5d529d4f75f2446fdf3b59d560c32ae697ff9f78f062428ba25fa732ba7268d8ad0c9f42043aa2f35619fb7bade667d630a353d720fa593cb91bcb1076a"
+alg_sha512 = "sha512"
+alg_sha256 = "sha256"
+target_hash_sha512 = "b366c5d529d4f75f2446fdf3b59d560c32ae697ff9f78f062428ba25fa732ba7268d8ad0c9f42043aa2f35619fb7bade667d630a353d720fa593cb91bcb1076a"
+target_hash_sha256 = "963cccb82a5525f62079b5a5de9742e4187cbc35107d570714287e0f0d156ddc"
 hash_success_msg = "Hash matches."
 
-expect("main checks first arg", try_test_main(None, alg, target_hash), None)
-expect("main checks second arg", try_test_main(target, None, target_hash), None)
-expect("main checks third arg", try_test_main(target, alg, None), None)
-expect("main works with valid args", try_test_main(target, alg, target_hash), hash_success_msg)
+expect("main checks first arg", try_test_main(None, alg_sha512, target_hash_sha512), None)
+expect("main checks second arg", try_test_main(target, None, target_hash_sha512), None)
+expect("main checks third arg", try_test_main(target, alg_sha512, None), None)
+expect("main works with valid sha512 args", try_test_main(target, alg_sha512, target_hash_sha512), hash_success_msg)
+expect("main works with valid sha256 args", try_test_main(target, alg_sha256, target_hash_sha256), hash_success_msg)
   
 expect("hash double None", try_test_hash(None, None), None)
 expect("hash algo None", try_test_hash(target, None), None)
-expect("hash path None", try_test_hash(None, alg), None)
-expect("hash valid args", try_test_hash(target, alg), target_hash)
+expect("hash path None", try_test_hash(None, alg_sha512), None)
+expect("hash valid args", try_test_hash(target, alg_sha512), target_hash_sha512)
 
 expect("validates args none", validate_args(None), 1)
 expect("validates args empty list", validate_args([]), 1)
