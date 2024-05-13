@@ -1,6 +1,5 @@
 from check_hash import main, validate_args, get_hash
 
-# check exit code is 1 when no args is wrong type
 def expect(label, test, expected_result):
   passed = "pass"
   
@@ -10,12 +9,6 @@ def expect(label, test, expected_result):
   
   print(f"{passed} - {label}")
   
-
-hash_nothing = None
-try:
-  get_hash(None, None)
-except TypeError:
-  pass
 
 def try_test_hash(arg1, arg2):
   result = None
