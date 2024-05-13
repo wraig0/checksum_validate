@@ -13,10 +13,10 @@ def validate_args(args):
 
 def get_hash(target, alg):
   if not isinstance(target, str):
-    raise TypeError("target is not a string")
+    raise TypeError("Target is not a string.")
   
   if not isinstance(alg, str):
-    raise TypeError("hash algorithm                                                      is not a string")
+    raise TypeError("Hash algorithm is not a string.")
   
   try:
     with open(target, 'rb') as file:
@@ -27,23 +27,35 @@ def get_hash(target, alg):
     
   except FileNotFoundError:
     print("Target file not found.")
-    return None
+    raise
   except:
     print("An error occurred while hashing the file.")
-    return None
+    raise
   
   
 def main(hash_target, hash_algo, hash_expected):
   if validate_args([hash_target, hash_algo, hash_expected]) == 1:
     raise RuntimeError("Args not valid.")
     
-  hash = get_hash(hash_target, hash_algo)
-  if isinstance(hash, str):
-    if hash == hash_expected:
-      return "Hash matches."
-    return f"Hash does not match. {hash}"
+  hash = None
+  try:
+    hash = get_hash(hash_target, hash_algo)
+  except:
+    print("Failed to get hash.")
+    return 0
+    
+  if not isinstance(hash, str):
+    print("Hash result was not valid.")
+    return 1
   
-  raise RuntimeError("Hash result was not valid.")
+  if hash == hash_expected:
+    print("Hash matches.")
+    return 0
+  
+  print(f"Hash does not match. {hash}")
+  return 1
+  
+  
   
   
 if __name__ == "__main__":

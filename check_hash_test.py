@@ -1,34 +1,5 @@
 from check_hash import main, validate_args, get_hash
-
-def expect(label, test, expected_result):
-  passed = "pass"
-  
-  if test != expected_result:
-    passed = "fail"
-    print(f"{test}")
-  
-  print(f"{passed} - {label}")
-  
-
-def try_test_hash(arg1, arg2):
-  result = None
-  try: 
-    result = get_hash(arg1, arg2)
-  except TypeError:
-    pass
-  finally:
-    return result
-  
-def try_test_main(arg1, arg2, arg3):
-  result = None
-  try: 
-    result = main(arg1, arg2, arg3)
-  except TypeError:
-    pass
-  except RuntimeError:
-    pass
-  finally:
-    return result
+import unittest
   
 target = "test_bob.txt"
 alg_sha512 = "sha512"
@@ -37,20 +8,57 @@ target_hash_sha512 = "b366c5d529d4f75f2446fdf3b59d560c32ae697ff9f78f062428ba25fa
 target_hash_sha256 = "963cccb82a5525f62079b5a5de9742e4187cbc35107d570714287e0f0d156ddc"
 hash_success_msg = "Hash matches."
 
-expect("main checks first arg", try_test_main(None, alg_sha512, target_hash_sha512), None)
-expect("main checks second arg", try_test_main(target, None, target_hash_sha512), None)
-expect("main checks third arg", try_test_main(target, alg_sha512, None), None)
-expect("main works with valid sha512 args", try_test_main(target, alg_sha512, target_hash_sha512), hash_success_msg)
-expect("main works with valid sha256 args", try_test_main(target, alg_sha256, target_hash_sha256), hash_success_msg)
+class TestHashing(unittest.TestCase):
+  def test_no_args(self):
+    self.assertRaisesRegex(TypeError, "Target is not a string.", get_hash, None, None)
+    
+  def test_no_path(self):
+    self.assertRaisesRegex(TypeError, "Target is not a string.", get_hash, None, alg_sha512)
+    
+  def test_no_alg(self):
+    self.assertRaisesRegex(TypeError, "Hash algorithm is not a string.", get_hash, target, None)
   
-expect("hash double None", try_test_hash(None, None), None)
-expect("hash algo None", try_test_hash(target, None), None)
-expect("hash path None", try_test_hash(None, alg_sha512), None)
-expect("hash valid args", try_test_hash(target, alg_sha512), target_hash_sha512)
-
-expect("validates args none", validate_args(None), 1)
-expect("validates args empty list", validate_args([]), 1)
-expect("validates args 1 arg", validate_args(["a"]), 1)
-expect("validates args 2 args", validate_args(["a", "b"]), 1)
-expect("validates args 3 args", validate_args(["a", "b", "c"]), 0)
-expect("validates args 4 args", validate_args(["a", "b", "c", "d"]), 0)
+  def test_invalid_alg(self):
+    self.assertRaises(Exception, get_hash, target, "sha5122", target_hash_sha512)
+  
+  def test_file_not_found(self):
+    self.assertRaises(FileNotFoundError, get_hash, "nope.txt", alg_sha256)    
+    
+  def test_valid_args(self):
+    self.assertEqual(get_hash(target, alg_sha256), target_hash_sha256)
+    
+  def test_args_validated(self):
+    self.assertRaisesRegex(RuntimeError, "Args not valid.", main, None, None, None)
+    
+  def test_hashes_sha512_0(self):
+    self.assertEqual(main(target, alg_sha512, target_hash_sha512), 0)
+    
+  def test_hashes_sha512_1(self):
+    self.assertEqual(main(target, alg_sha512, "foo"), 1)
+    
+  def test_hashes_sha256_0(self):
+    self.assertEqual(main(target, alg_sha256, target_hash_sha256), 0)
+    
+  def test_hashes_sha256_1(self):
+    self.assertEqual(main(target, alg_sha256, "foo"), 1)
+    
+  def test_validate_args_exist(self):
+    self.assertEqual(validate_args(None), 1)
+    
+  def test_validate_args_type(self):
+    self.assertEqual(validate_args(()), 1)
+    
+  def test_validate_args_count_0(self):
+    self.assertEqual(validate_args([]), 1)
+    
+  def test_validate_args_count_1(self):
+    self.assertEqual(validate_args(["a"]), 1)
+    
+  def test_validate_args_count_2(self):
+    self.assertEqual(validate_args(["a", "b"]), 1)
+    
+  def test_validate_args_count_3(self):
+    self.assertEqual(validate_args(["a", "b", "c"]), 0)
+    
+if __name__ == '__main__':
+    unittest.main()
